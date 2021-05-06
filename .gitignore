@@ -1,0 +1,9 @@
+.idea
+venv
+__pycache__
+
+/threading example
+
+*.mkv
+*.mp3
+*.json
