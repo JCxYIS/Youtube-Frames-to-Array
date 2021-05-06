@@ -27,7 +27,7 @@ def refresh():
     return Response("ok")
 
 
-@app.route("/badapple")
+@app.route("/audio")
 def send_mp3():
     """
     send mp3
