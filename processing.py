@@ -1,4 +1,5 @@
 import json
+import threading
 
 # from functools import partial
 # from multiprocessing.pool import Pool
@@ -18,18 +19,14 @@ OUTPUT_WIDTH = 36
 OUTPUT_HEIGHT = 28
 
 # Paths
-OUTPUT_PATH = r"BadAppleFrameData.json"
-
-# result
-result_frames = []
+FRAME_DATA_PATH = r"output/FrameData.json"
+AUDIO_PATH = r"output/music"
 
 
 #
-def process_video(url, skip_frames, process_number):
+def process_video(url):
     """
-    :param url: String
-    :param skip_frames:
-    :param process_number:
+    :param url: 影片原網址 (either local or remote)
     :return:
     """
     cap = cv2.VideoCapture(url)
@@ -49,6 +46,7 @@ def process_video(url, skip_frames, process_number):
     frame_count = 0
     has_get_size = False
     use_resize = False
+    result_frames = []  # result
 
     # Loop through each frame
     while True:
@@ -97,11 +95,25 @@ def process_video(url, skip_frames, process_number):
         # if cv2.waitKey(3) & 0xFF == ord('q'): # #if 'q' key-pressed break out
         #     break
     cap.release()
+
+    print("process done! now saving...")
+    with open(FRAME_DATA_PATH, 'w+') as f:
+        json.dump(result_frames, f)
+    print("Done! Data saved to %s" % FRAME_DATA_PATH)
     # return result_frames
+
+
+def download_audio(pafyObj):
+    aud = pafyObj.getbestaudio()
+    aud.download(filepath=AUDIO_PATH)
+    print("Audio saved to", AUDIO_PATH, "(Format=", aud.extension, ")")
 
 
 # DL
 def main():
+    # init folder
+    os.makedirs(os.path.dirname(FRAME_DATA_PATH), exist_ok=True)
+
     vPafy = pafy.new(URL)
     play = vPafy.getbest()  # reftype="webm"
     url = play.url
@@ -109,12 +121,8 @@ def main():
     print("Get Url=", url)
 
     print("Now Processing")
-    process_video(url, 0, 300)
-
-    print("process done! now saving...")
-    with open(OUTPUT_PATH, 'w+') as f:
-        json.dump(result_frames, f)
-    print("Done! Data saved to %s" % OUTPUT_PATH)
+    threading.Thread(target=download_audio, args=(vPafy,)).start()  # download_audio(vPafy)
+    process_video(url)
 
 
 if __name__ == '__main__':
