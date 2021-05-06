@@ -25,7 +25,7 @@ result_frames = []
 
 
 #
-def process_video_parallel(url, skip_frames, process_number):
+def process_video(url, skip_frames, process_number):
     """
     :param url: String
     :param skip_frames:
@@ -93,27 +93,15 @@ def process_video_parallel(url, skip_frames, process_number):
         result_frames.append(matrix)
 
         # show img
-        cv2.imshow('Bad Apple!!', frame)
-        if cv2.waitKey(3) & 0xFF == ord('q'): # #if 'q' key-pressed break out
-            break
+        # cv2.imshow('Bad Apple!!', frame)
+        # if cv2.waitKey(3) & 0xFF == ord('q'): # #if 'q' key-pressed break out
+        #     break
     cap.release()
     # return result_frames
 
 
-
-
 # DL
 def main():
-    # ydl_opts = {}
-    # ydl = youtube_dl.YoutubeDL(ydl_opts)
-    # info_dict = ydl.extract_info(URL, download=False)
-    #
-    # formats = info_dict.get('formats', None)
-    #
-    #
-    # for f in formats:
-    #     if f.get('format_note', None) == '144p':
-    #     url = f.get('url', None)
     vPafy = pafy.new(URL)
     play = vPafy.getbest()  # reftype="webm"
     url = play.url
@@ -121,7 +109,9 @@ def main():
     print("Get Url=", url)
 
     print("Now Processing")
-    process_video_parallel(url, 0, 300)
+    process_video(url, 0, 300)
+
+    print("process done! now saving...")
     with open(OUTPUT_PATH, 'w+') as f:
         json.dump(result_frames, f)
     print("Done! Data saved to %s" % OUTPUT_PATH)
