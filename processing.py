@@ -1,8 +1,6 @@
 import json
 import threading
 
-# from functools import partial
-# from multiprocessing.pool import Pool
 from PIL import Image
 
 import os
@@ -10,9 +8,9 @@ import cv2
 import pafy
 
 
-# AAA
-URL =  r"https://youtu.be/FtutLA63Cp8" # Bad Apple
-#URL =  r'https://www.youtube.com/watch?v=dQw4w9WgXcQ'  # Never gonna
+# Url
+URL =  r"https://youtu.be/FtutLA63Cp8"
+#URL =  r'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
 
 # Output Parameters
 OUTPUT_WIDTH = 36
