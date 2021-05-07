@@ -1,3 +1,5 @@
+import time
+
 from flask import Flask, send_file, Response
 
 import processing
@@ -23,8 +25,14 @@ def output():
 
 @app.route("/refresh")
 def refresh():
-    processing.main()
-    return Response("ok")
+    processing.main(processing.URL)
+    return Response(str(time.time())+" Processed with "+processing.URL)
+
+
+@app.route('/refresh/<path:url>')
+def refresh_with_url(url):
+    processing.main(url)
+    return Response(str(time.time())+" Processed with "+url)
 
 
 @app.route("/audio")

@@ -102,26 +102,28 @@ def process_video(url):
 
 
 def download_audio(pafyObj):
+    if os.path.exists(AUDIO_PATH):
+        os.remove(AUDIO_PATH)
     aud = pafyObj.getbestaudio()
     aud.download(filepath=AUDIO_PATH)
     print("Audio saved to", AUDIO_PATH, "(Format=", aud.extension, ")")
 
 
 # DL
-def main():
+def main(url=URL):
     # init folder
     os.makedirs(os.path.dirname(FRAME_DATA_PATH), exist_ok=True)
 
-    vPafy = pafy.new(URL)
+    vPafy = pafy.new(url)
     play = vPafy.getbest()  # reftype="webm"
-    url = play.url
+    video_url = play.url
     # url = r"/home/jcxyis/Downloads/videoplayback.mp4"  # for test
-    print("Get Url=", url)
+    print("Get Url=", video_url)
 
     print("Now Processing")
     threading.Thread(target=download_audio, args=(vPafy,)).start()  # download_audio(vPafy)
-    process_video(url)
+    process_video(video_url)
 
 
 if __name__ == '__main__':
-    main()
+    main(URL)
