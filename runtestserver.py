@@ -1,10 +1,13 @@
 import time
 
-from flask import Flask, send_file, Response
+from flask import Flask, send_file, Response, request
+from flask_cors import CORS,cross_origin
 
 import processing
 
+
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/")
@@ -23,10 +26,12 @@ def output():
     return send_file(processing.FRAME_DATA_PATH)
 
 
-@app.route("/refresh")
-def refresh():
-    processing.main(processing.URL)
-    return Response(str(time.time())+" Processed with "+processing.URL)
+@app.route("/refresh", methods=['POST'])
+def refresh_post():
+    url = str(request.form.get('url'))
+    # print(len(request.values))
+    processing.main(url)
+    return Response(str(time.time())+" Processed with "+url)
 
 
 @app.route('/refresh/<path:url>')
@@ -46,4 +51,4 @@ def send_mp3():
 
 
 if __name__ == '__main__':
-    app.run(port=8763)
+    app.run(port=8763, debug=True)
