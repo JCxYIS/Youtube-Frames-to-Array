@@ -13,8 +13,9 @@ URL =  r"https://youtu.be/FtutLA63Cp8"
 #URL =  r'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
 
 # Output Parameters
-OUTPUT_WIDTH = 36
-OUTPUT_HEIGHT = 28
+OUTPUT_MAX_WIDTH = 36
+OUTPUT_MAX_HEIGHT = 28
+# OUTPUT_MAX_FPS = 30
 
 # Paths
 FRAME_DATA_PATH = r"output/FrameData.json"
@@ -36,14 +37,13 @@ def process_video(url):
 
     print("***********************")
     print("Frames=", total_frames)
-    print("Width=", width, ", Height=", height)
+    print("(Source) Width=", width, ", Height=", height)
     print("FPS=", fps)
     print("***********************")
     # cap.set(cv2.CAP_PROP_POS_FRAMES, frames_per_process * process_number)
 
     frame_count = 0
-    has_get_size = False
-    use_resize = False
+    use_resize = width > OUTPUT_MAX_WIDTH or height > OUTPUT_MAX_HEIGHT
     result_frames = []  # result
 
     # Loop through each frame
@@ -65,21 +65,16 @@ def process_video(url):
 
         # evaluate stuff
         img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))  # 因為 OpenCV是用B,G,R存，PIL是R,G,B , and PIL is faster on loading idk
-        if not has_get_size:
-            (w, h) = img.size
-            use_resize = (w != OUTPUT_WIDTH or h != OUTPUT_HEIGHT)
-            has_get_size = True
-            print('WIDTH=%d, HEIGHT=%d, use_resize=%d'%(w, h, use_resize))
         if use_resize:
-            img = img.resize((OUTPUT_WIDTH, OUTPUT_HEIGHT))
+            img = img.resize((OUTPUT_MAX_WIDTH, OUTPUT_MAX_HEIGHT))
             # print("USE RESIZE")
         pixels = img.load()
 
         matrix = []
-        # evaluate all pixels
-        for y in range(OUTPUT_HEIGHT):  # height
+        # go through all pixels
+        for y in range(OUTPUT_MAX_HEIGHT):  # height
             row = []
-            for x in range(OUTPUT_WIDTH):  # width
+            for x in range(OUTPUT_MAX_WIDTH):  # width
                 # print(img[y, x])
                 if pixels[x, y][0] < 128:
                     row.append(1)
@@ -94,9 +89,17 @@ def process_video(url):
         #     break
     cap.release()
 
+    # Write File
     print("process done! now saving...")
+    output_data = {
+        "fps": fps,
+        "frames": frame_count,
+        "width": OUTPUT_MAX_WIDTH,
+        "height": OUTPUT_MAX_HEIGHT,
+        "data": result_frames,
+    }
     with open(FRAME_DATA_PATH, 'w+') as f:
-        json.dump(result_frames, f)
+        json.dump(output_data, f)
     print("Done! Data saved to %s" % FRAME_DATA_PATH)
     # return result_frames
 
