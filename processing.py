@@ -15,6 +15,7 @@ URL =  r"https://youtu.be/FtutLA63Cp8"
 # Output Parameters
 OUTPUT_MAX_WIDTH = 36
 OUTPUT_MAX_HEIGHT = 28
+OUTPUT_COLOR_COUNT = 2  # Color steps => 2:[0, 1], 3:[0, 1, 2]... less is darker
 # OUTPUT_MAX_FPS = 30
 
 # Paths
@@ -76,10 +77,17 @@ def process_video(url):
             row = []
             for x in range(OUTPUT_MAX_WIDTH):  # width
                 # print(img[y, x])
-                if pixels[x, y][0] < 128:
-                    row.append(1)
-                else:
-                    row.append(0)
+                # gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
+                gray = 0.2989 * pixels[x, y][0] + 0.5870 * pixels[x, y][1] + 0.1140 * pixels[x, y][2]
+                for i in range(OUTPUT_COLOR_COUNT):
+                    gray -= 256.0/OUTPUT_COLOR_COUNT
+                    if gray <= 0:
+                        row.append(OUTPUT_COLOR_COUNT-i-1)
+                        break
+                # if pixels[x, y][0] < 128:
+                #     row.append(1)
+                # else:
+                #     row.append(0)
             matrix.append(row)
         result_frames.append(matrix)
 
@@ -93,9 +101,10 @@ def process_video(url):
     print("process done! now saving...")
     output_data = {
         "fps": fps,
-        "frames": frame_count,
-        "width": OUTPUT_MAX_WIDTH,
-        "height": OUTPUT_MAX_HEIGHT,
+        "frames": len(result_frames),
+        "colors": OUTPUT_COLOR_COUNT,
+        "width": len(result_frames[0][0]),
+        "height": len(result_frames[0]),
         "data": result_frames,
     }
     with open(FRAME_DATA_PATH, 'w+') as f:
