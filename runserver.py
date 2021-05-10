@@ -28,16 +28,18 @@ def output():
 
 @app.route("/refresh", methods=['POST'])
 def refresh_post():
-    url = str(request.form.get('url'))
-    # print(len(request.values))
-    processing.main(url)
-    return Response(str(time.time())+" Processed with "+url)
+    setting = processing.PreprocessingSetting()
+    if request.form.get('url'):
+        setting.URL = request.form.get('url')
+
+    processing.main(setting)
+    return Response(str(time.time())+" Processed with "+setting.URL)
 
 
-@app.route('/refresh/<path:url>')
-def refresh_with_url(url):
-    processing.main(url)
-    return Response(str(time.time())+" Processed with "+url)
+# @app.route('/refresh/<path:url>')
+# def refresh_with_url(url):
+#     processing.main(url)
+#     return Response(str(time.time())+" Processed with "+url)
 
 
 @app.route("/audio")
